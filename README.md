@@ -84,25 +84,7 @@ pip install snowflake-connector-python
 
 # Configuration
 
-Connection settings are currently defined inside the script:
-
-```
-ACCOUNT
-USER
-WAREHOUSE
-ROLE
-PRIVATE_KEY_FILE
-```
-
-Example:
-
-```
-ACCOUNT = "MYACCOUNT"
-USER = "MYUSER"
-WAREHOUSE = "ANALYTICS_WH"
-ROLE = "ANALYST"
-PRIVATE_KEY_FILE = "~/.ssh/snowflake_key.p8"
-```
+Connection settings are currently defined in creds.json.  See the example for details.
 
 Your Snowflake user must already have the public key registered.
 
