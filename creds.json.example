@@ -1,0 +1,7 @@
+{
+    "ACCOUNT": "YOUR_ACCOUNT",
+    "USER": "YOUR_USERNAME",
+    "WAREHOUSE": "YOUR_WAREHOUSE",
+    "ROLE": "YOUR_ROLE",
+    "PRIVATE_KEY_FILE": "path/to/your/private/key.p8"
+}

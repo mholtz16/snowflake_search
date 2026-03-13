@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Exit on errors
+set -e
+
+# Directory where this script lives
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Activate the virtual environment
+source "$SCRIPT_DIR/venv/bin/activate"
+
+# Run the python script with all arguments
+python "$SCRIPT_DIR/snowflake_search.py" "$@"
