@@ -250,432 +250,125 @@ def parse_scope(database: str, schema: str | None, table: str | None) -> tuple[s
 
 
 HTML = """
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Snowflake Search</title>
-  <style>
-    :root {
-      --bg: #f6f8fb;
-      --card: #ffffff;
-      --text: #1d2733;
-      --muted: #5c6b7a;
-      --border: #d9e1ea;
-      --accent: #2160ff;
-      --accent-soft: #eef3ff;
-      --danger: #cc2936;
-      --shadow: 0 8px 24px rgba(22, 34, 51, 0.08);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    .page {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    .hero {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: flex-start;
-      margin-bottom: 20px;
-    }
-    .hero h1 {
-      margin: 0 0 8px 0;
-      font-size: 2rem;
-    }
-    .hero p {
-      margin: 0;
-      color: var(--muted);
-      max-width: 760px;
-      line-height: 1.5;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 20px;
-      margin-bottom: 18px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .field label {
-      display: block;
-      font-size: 0.92rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .field input, .field select {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: white;
-      font-size: 0.96rem;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 11px 16px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-    .primary {
-      background: var(--accent);
-      color: white;
-    }
-    .secondary {
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-    .note {
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .stat {
-      background: #fbfcfe;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-    }
-    .stat .label {
-      color: var(--muted);
-      font-size: 0.88rem;
-      margin-bottom: 6px;
-    }
-    .stat .value {
-      font-size: 1.4rem;
-      font-weight: 800;
-    }
-    .error {
-      border-left: 6px solid var(--danger);
-    }
-    .meta {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-bottom: 12px;
-    }
-    .pill {
-      display: inline-block;
-      padding: 0.22rem 0.55rem;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 0.82rem;
-      margin-right: 0.35rem;
-      margin-bottom: 0.35rem;
-    }
-    .table-wrap {
-      overflow: auto;
-      max-height: 460px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.92rem;
-      background: white;
-    }
-    th, td {
-      border-bottom: 1px solid #edf1f5;
-      padding: 10px 12px;
-      text-align: left;
-      vertical-align: top;
-      white-space: nowrap;
-    }
-    th {
-      background: #f8fafc;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-    .loading {
-      display: none;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-    .inline-group {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    @media (max-width: 1100px) {
-      .grid, .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 700px) {
-      .page { padding: 16px; }
-      .grid, .summary-grid { grid-template-columns: 1fr; }
-      .hero { flex-direction: column; }
-    }
-  </style>
-</head>
-<body>
-  <div class="page">
-    <div class="hero">
-      <div>
-        <h1>Snowflake Search</h1>
-        <p>Search a single table, an entire schema, or a whole database for a string. The database, schema, and table selectors can auto-load from Snowflake.</p>
-      </div>
-      <div class="card" style="min-width:280px; margin-bottom:0;">
-        <div class="meta" style="margin-bottom:6px;">Connection profile</div>
-        <div><strong>User:</strong> {{ user }}</div>
-        <div><strong>Warehouse:</strong> {{ warehouse }}</div>
-        <div><strong>Role:</strong> {{ role }}</div>
-      </div>
-    </div>
+<script>
+  const appBase = "{{ request.script_root }}";
+  const databaseSelect = document.getElementById('database');
+  const schemaSelect = document.getElementById('schema');
+  const tableSelect = document.getElementById('table');
+  const loadingIndicator = document.getElementById('loading-indicator');
+  const reloadDbButton = document.getElementById('reload-db');
 
-    <form class="card" method="post" action="/search" id="search-form">
-      <div class="grid">
-        <div class="field">
-          <label for="database">Database</label>
-          <select id="database" name="database" required>
-            <option value="">Select a database...</option>
-            {% for db in databases %}
-              <option value="{{ db }}" {% if form.database == db %}selected{% endif %}>{{ db }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="field">
-          <label for="schema">Schema</label>
-          <select id="schema" name="schema">
-            <option value="">All schemas</option>
-            {% for s in schemas %}
-              <option value="{{ s }}" {% if form.schema == s %}selected{% endif %}>{{ s }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="field">
-          <label for="table">Table</label>
-          <select id="table" name="table">
-            <option value="">All tables</option>
-            {% for t in tables %}
-              <option value="{{ t }}" {% if form.table == t %}selected{% endif %}>{{ t }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="field">
-          <label for="search">Search string</label>
-          <input id="search" name="search" value="{{ form.search }}" required placeholder="gmail.com">
-        </div>
-        <div class="field">
-          <label for="limit">Per-table limit</label>
-          <input id="limit" name="limit" type="number" min="1" max="5000" value="{{ form.limit or 100 }}">
-        </div>
-      </div>
+  function setLoading(isLoading, message = 'Loading metadata...') {
+    loadingIndicator.style.display = isLoading ? 'inline' : 'none';
+    loadingIndicator.textContent = message;
+  }
 
-      <div class="controls">
-        <button class="primary" type="submit">Run search</button>
-        <button class="secondary" type="button" id="reload-db">Reload databases</button>
-        <span class="loading" id="loading-indicator">Loading metadata...</span>
-        <span class="note">Leave schema blank to search all schemas. Leave table blank to search all tables in the selected scope.</span>
-      </div>
-    </form>
+  function fillSelect(selectEl, values, blankLabel, selectedValue = '') {
+    selectEl.innerHTML = '';
+    const blankOption = document.createElement('option');
+    blankOption.value = '';
+    blankOption.textContent = blankLabel;
+    selectEl.appendChild(blankOption);
 
-    {% if error %}
-      <div class="card error">
-        <h3 style="margin-top:0;">Error</h3>
-        <div>{{ error }}</div>
-      </div>
-    {% endif %}
-
-    {% if summary %}
-      <div class="card">
-        <h2 style="margin-top:0;">Summary</h2>
-        <div class="summary-grid">
-          <div class="stat"><div class="label">Database</div><div class="value" style="font-size:1.05rem;">{{ summary.database }}</div></div>
-          <div class="stat"><div class="label">Schemas searched</div><div class="value">{{ summary.schema_count }}</div></div>
-          <div class="stat"><div class="label">Tables searched</div><div class="value">{{ summary.table_count }}</div></div>
-          <div class="stat"><div class="label">Rows returned</div><div class="value">{{ summary.total_matches }}</div></div>
-        </div>
-        <div class="meta" style="margin-top:12px;">Tables with matches: {{ summary.tables_with_matches }}</div>
-      </div>
-    {% endif %}
-
-    {% for result in results %}
-      <div class="card">
-        <h3 style="margin-top:0;">{{ result.database }}.{{ result.schema }}.{{ result.table }}</h3>
-        <div class="meta">Columns searched: {{ result.column_count }} | Matches returned: {{ result.match_count }}</div>
-        {% if result.columns_searched %}
-          <div style="margin-bottom:12px;">
-            {% for col in result.columns_searched %}
-              <span class="pill">{{ col }}</span>
-            {% endfor %}
-          </div>
-        {% endif %}
-        {% if result.rows %}
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  {% for col in result.colnames %}
-                    <th>{{ col }}</th>
-                  {% endfor %}
-                </tr>
-              </thead>
-              <tbody>
-                {% for row in result.rows %}
-                  <tr>
-                    {% for value in row %}
-                      <td>{{ value }}</td>
-                    {% endfor %}
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <div class="meta">No matches found.</div>
-        {% endif %}
-      </div>
-    {% endfor %}
-  </div>
-
-  <script>
-    const databaseSelect = document.getElementById('database');
-    const schemaSelect = document.getElementById('schema');
-    const tableSelect = document.getElementById('table');
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const reloadDbButton = document.getElementById('reload-db');
-
-    function setLoading(isLoading, message = 'Loading metadata...') {
-      loadingIndicator.style.display = isLoading ? 'inline' : 'none';
-      loadingIndicator.textContent = message;
-    }
-
-    function fillSelect(selectEl, values, blankLabel, selectedValue = '') {
-      selectEl.innerHTML = '';
-      const blankOption = document.createElement('option');
-      blankOption.value = '';
-      blankOption.textContent = blankLabel;
-      selectEl.appendChild(blankOption);
-
-      values.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        if (value === selectedValue) {
-          option.selected = true;
-        }
-        selectEl.appendChild(option);
-      });
-    }
-
-    async function loadDatabases(selectedValue = '') {
-      setLoading(true, 'Loading databases...');
-      try {
-        const response = await fetch('/api/databases');
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to load databases');
-        }
-        fillSelect(databaseSelect, data.databases, 'Select a database...', selectedValue || databaseSelect.value);
-      } catch (error) {
-        console.error(error);
-        alert(error.message);
-      } finally {
-        setLoading(false);
+    values.forEach(value => {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      if (value === selectedValue) {
+        option.selected = true;
       }
-    }
-
-    async function loadSchemas(database, selectedValue = '') {
-      fillSelect(schemaSelect, [], 'All schemas');
-      fillSelect(tableSelect, [], 'All tables');
-      if (!database) return;
-
-      setLoading(true, 'Loading schemas...');
-      try {
-        const response = await fetch(`/api/schemas?database=${encodeURIComponent(database)}`);
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to load schemas');
-        }
-        fillSelect(schemaSelect, data.schemas, 'All schemas', selectedValue);
-      } catch (error) {
-        console.error(error);
-        alert(error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function loadTables(database, schema, selectedValue = '') {
-      fillSelect(tableSelect, [], 'All tables');
-      if (!database || !schema) return;
-
-      setLoading(true, 'Loading tables...');
-      try {
-        const response = await fetch(`/api/tables?database=${encodeURIComponent(database)}&schema=${encodeURIComponent(schema)}`);
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to load tables');
-        }
-        fillSelect(tableSelect, data.tables, 'All tables', selectedValue);
-      } catch (error) {
-        console.error(error);
-        alert(error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    databaseSelect.addEventListener('change', async () => {
-      await loadSchemas(databaseSelect.value);
+      selectEl.appendChild(option);
     });
+  }
 
-    schemaSelect.addEventListener('change', async () => {
-      await loadTables(databaseSelect.value, schemaSelect.value);
-    });
+  async function loadDatabases(selectedValue = '') {
+    setLoading(true, 'Loading databases...');
+    try {
+      const response = await fetch(`${appBase}/api/databases`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load databases');
+      }
+      fillSelect(databaseSelect, data.databases, 'Select a database...', selectedValue || databaseSelect.value);
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    reloadDbButton.addEventListener('click', async () => {
-      await loadDatabases(databaseSelect.value);
-      if (databaseSelect.value) {
-        await loadSchemas(databaseSelect.value, schemaSelect.value);
-        if (schemaSelect.value) {
-          await loadTables(databaseSelect.value, schemaSelect.value, tableSelect.value);
-        }
-      }
-    });
+  async function loadSchemas(database, selectedValue = '') {
+    fillSelect(schemaSelect, [], 'All schemas');
+    fillSelect(tableSelect, [], 'All tables');
+    if (!database) return;
 
-    window.addEventListener('load', async () => {
-      if (databaseSelect.options.length <= 1) {
-        await loadDatabases('{{ form.database }}');
+    setLoading(true, 'Loading schemas...');
+    try {
+      const response = await fetch(`${appBase}/api/schemas?database=${encodeURIComponent(database)}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load schemas');
       }
-      if ('{{ form.database }}') {
-        await loadSchemas('{{ form.database }}', '{{ form.schema }}');
+      fillSelect(schemaSelect, data.schemas, 'All schemas', selectedValue);
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadTables(database, schema, selectedValue = '') {
+    fillSelect(tableSelect, [], 'All tables');
+    if (!database || !schema) return;
+
+    setLoading(true, 'Loading tables...');
+    try {
+      const response = await fetch(`${appBase}/api/tables?database=${encodeURIComponent(database)}&schema=${encodeURIComponent(schema)}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load tables');
       }
-      if ('{{ form.database }}' && '{{ form.schema }}') {
-        await loadTables('{{ form.database }}', '{{ form.schema }}', '{{ form.table }}');
+      fillSelect(tableSelect, data.tables, 'All tables', selectedValue);
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  databaseSelect.addEventListener('change', async () => {
+    await loadSchemas(databaseSelect.value);
+  });
+
+  schemaSelect.addEventListener('change', async () => {
+    await loadTables(databaseSelect.value, schemaSelect.value);
+  });
+
+  reloadDbButton.addEventListener('click', async () => {
+    await loadDatabases(databaseSelect.value);
+    if (databaseSelect.value) {
+      await loadSchemas(databaseSelect.value, schemaSelect.value);
+      if (schemaSelect.value) {
+        await loadTables(databaseSelect.value, schemaSelect.value, tableSelect.value);
       }
-    });
-  </script>
-</body>
-</html>
+    }
+  });
+
+  window.addEventListener('load', async () => {
+    if (databaseSelect.options.length <= 1) {
+      await loadDatabases('{{ form.database }}');
+    }
+    if ('{{ form.database }}') {
+      await loadSchemas('{{ form.database }}', '{{ form.schema }}');
+    }
+    if ('{{ form.database }}' && '{{ form.schema }}') {
+      await loadTables('{{ form.database }}', '{{ form.schema }}', '{{ form.table }}');
+    }
+  });
+</script>
 """
 
 
